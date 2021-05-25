@@ -279,7 +279,7 @@ Deploy the persistent volumes
 
     kubectl apply -f aws-volumes-updated.yml
 
-## Deploy the AWS Load Balancer Controller
+### Deploy the AWS Load Balancer Controller
 
 Associate OIDC provider
 
