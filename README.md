@@ -10,8 +10,6 @@ Quick search landed me to Solr Operator currently under Apache Foundation, and I
 
 After looking through Google, I stumbled upon Bitnami Helm Chart (https://bitnami.com/stack/solr/helm), there may be other helm charts too. Helm is to K8s as NPM is to the Javascript world, anyways I started working with it and it worked like a charm, the below SolrCloud 8.8 cluster came up as a breeze with default configs.
 
-# Diagram
-
 Make sure your local K8s cluster is having free resources of atleast 3 CPU and 5GB of RAM, you would also need to checkout the repo @ https://github.com/abhijit-choudhury/eks-fargate-solr for yamls referenced here. Below deploys a StatefulSet for SolrCloud with 2 Solr servers and 3 Zookeepers
 
     helm repo add bitnami https://charts.bitnami.com/bitnami
