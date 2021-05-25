@@ -1,0 +1,91 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: solr-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: zookeeper-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: solr1-pv-volume
+spec:
+  storageClassName: solr-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/Users/abhchoud/work/mine/solr-data/solr1"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: solr2-pv-volume
+spec:
+  storageClassName: solr-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/Users/abhchoud/work/mine/solr-data/solr2"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: solr3-pv-volume
+spec:
+  storageClassName: solr-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/Users/abhchoud/work/mine/solr-data/solr3"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zookeeper1-pv-volume
+spec:
+  storageClassName: zookeeper-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/Users/abhchoud/work/mine/solr-data/zoo1"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zookeeper2-pv-volume
+spec:
+  storageClassName: zookeeper-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/Users/abhchoud/work/mine/solr-data/zoo2"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zookeeper3-pv-volume
+spec:
+  storageClassName: zookeeper-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/Users/abhchoud/work/mine/solr-data/zoo3"

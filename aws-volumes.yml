@@ -1,0 +1,114 @@
+apiVersion: storage.k8s.io/v1beta1
+kind: CSIDriver
+metadata:
+  name: efs.csi.aws.com
+spec:
+  attachRequired: false
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: efs-solr-sc
+provisioner: efs.csi.aws.com
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: efs-zookeeper-sc
+provisioner: efs.csi.aws.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: solr1-efs-pv
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-solr-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: $SOLR1_EFS_FS_ID::$SOLR1_EFS_AP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: solr2-efs-pv
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-solr-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: $SOLR2_EFS_FS_ID::$SOLR2_EFS_AP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: solr3-efs-pv
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-solr-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: $SOLR3_EFS_FS_ID::$SOLR3_EFS_AP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zookeeper1-efs-pv
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-zookeeper-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: $ZOOKEEPER1_EFS_FS_ID::$ZOOKEEPER1_EFS_AP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zookeeper2-efs-pv
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-zookeeper-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: $ZOOKEEPER2_EFS_FS_ID::$ZOOKEEPER2_EFS_AP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: zookeeper3-efs-pv
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-zookeeper-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: $ZOOKEEPER3_EFS_FS_ID::$ZOOKEEPER3_EFS_AP
