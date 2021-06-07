@@ -49,6 +49,8 @@ Now let's push those configs to my-collection.AUTOCREATED configset (cloned from
     curl -u admin:admin -X POST -H "Content-Type:application/octet-stream" --data-binary @project-configs.zip "http://HOSTNAME/solr/admin/configs?action=UPLOAD&name=my-collection.AUTOCREATED&overwrite=true"
 
 Create any new collections and aliases as required, if needed reload the collections
+
+    curl -u admin:admin "http://HOSTNAME/solr/admin/collections?action=CREATE&name=new-collection-name&numShards=1&tlogReplicas=2&maxShardsPerNode=1&collection.configName=my-collection.AUTOCREATED"
     
     curl -u admin:admin "http://HOSTNAME/solr/admin/collections?action=RELOAD&name=my-collection"
 
@@ -208,7 +210,30 @@ Let's set up our EKS with Fargate, AWS CLI should be installed and configured co
     --region $SOLR_AWS_REGION \
     --fargate
 
+    OR
+
+    eksctl create cluster -f eks-cluster-config.yaml
+
 It takes a while for cluster to get up and running, please be patient you should be able to monitor the progress events in cloud formation on AWS console
+
+### Logging
+
+    kubectl apply -f logging.yml
+
+    curl -o permissions.json \
+    https://raw.githubusercontent.com/aws-samples/amazon-eks-fluent-logging-examples/mainline/examples/fargate/cloudwatchlogs/permissions.json
+
+    aws iam create-policy \
+        --policy-name FluentBitEKSFargate \
+        --policy-document file://permissions.json 
+
+    aws iam attach-role-policy \
+        --policy-arn arn:aws:iam::123456789012:policy/FluentBitEKSFargate \
+        --role-name eksctl-fluentbit-cluster-FargatePodExecutionRole-XXXXXXXXXX
+
+Replace eksctl-fluentbit-cluster-FargatePodExecutionRole-XXXXXXXXXX role from IAM, once the SOLR is up and running we should be able to find our logs under 
+    
+    /aws/eks/solr-application/logs log group
 
 Get VPC and CIDR details and setup security group for accessing EFS volumes
 

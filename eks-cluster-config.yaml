@@ -1,0 +1,29 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: eks-fargate-solr
+  region: eu-west-1
+  version: '1.19'
+vpc:
+  id: "vpc-xxxxxxxxx"
+  subnets:
+    public:
+      eu-west-1a:
+          id: "subnet-xxxxxxxxx"
+      eu-west-1b:
+          id: "subnet-xxxxxxxxx"
+    private:
+      eu-west-1a:
+          id: "subnet-xxxxxxxxx"
+      eu-west-1b:
+          id: "subnet-xxxxxxxxx"
+iam:
+  withOIDC: true
+fargateProfiles:
+  - name: fp-default
+    selectors:
+      - namespace: default
+      - namespace: kube-system
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["*"]
