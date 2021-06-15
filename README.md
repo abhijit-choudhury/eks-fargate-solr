@@ -114,7 +114,7 @@ Download Metrics Server yaml and update below to allow running it in insecure tl
 
     wget https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 
-Update components.yaml as below
+Update components.yaml as below for local only
 
     spec:
     containers:
@@ -145,7 +145,7 @@ Run below and wait for a replica pod to be spawned and once its healthy and read
 
 And similarly for scaling down I re-applied the same hpa.yml with really high value like 100Gi, scaling down takes a little longer than scale up so have patience
 
-## Reinstall SolrCloud with custom persistent volumes
+## Reinstall Local SolrCloud with Custom Persistent Volumes
 
 Now that I was able to run Solr on K8s and autoscale it, I decided to tweak things a little which will be needed when I plan to move things into cloud
 
@@ -164,6 +164,8 @@ Let's set up persistent volumes to be used with our installation
 2. Create 3 persistent volumes of type zookeeper-storage for the 3 Zookeepers
 
 3. Depending on maximum number of replicas e.g. 3 configured in HPA, create as many persistent volumes of type solr-storage for Solr servers
+
+4. Finally creating a storage class, persistent volume and persistent volume claim for Solr backup
 
     sh setup-local-storage.sh
 
@@ -210,13 +212,17 @@ Let's set up our EKS with Fargate, AWS CLI should be installed and configured co
     --region $SOLR_AWS_REGION \
     --fargate
 
-    OR
+    OR use below to use predefined VPC and Subnets
 
     eksctl create cluster -f eks-cluster-config.yaml
 
 It takes a while for cluster to get up and running, please be patient you should be able to monitor the progress events in cloud formation on AWS console
 
+If more replicas are needed we need to create more EFS (Its access point and mount paths) and update the hpa.yml with maxReplicas
+
 ### Logging
+
+We will use FluentBit framework, explore more details here https://aws.amazon.com/blogs/containers/fluent-bit-for-amazon-eks-on-aws-fargate-is-here/
 
     kubectl apply -f logging.yml
 
@@ -389,12 +395,18 @@ Now re-apply the HPA configured with averageValue as 10Mi, and check again for t
 
 In few minutes autoscaling should kick in, validate once again if new replica gets attached to my-collection in graph view and thats it we are done.
 
-## Logging
-
-It will take another article, so for now I'll just drop an hint that we will use FluentBit framework, explore more details here https://aws.amazon.com/blogs/containers/fluent-bit-for-amazon-eks-on-aws-fargate-is-here/
+If more replicas are needed we need to create more EFS (Its access point and mount paths) and update the hpa.yml with maxReplicas
 
 ## Backup
-We can use collections api for backup and restore Solr but it out of scope for this article too
+We can use collections api for backup and restore on SolrCloud and single shared volume needs to be mounted on all Solr replicas.
+
+For local I have updated the local-values.yaml with a busybox init container to fix the permissions on the mounted volume, as the volume gets mounted with root user and Solr process needs to write on it
+
+For AWS mounted EFS volumes, permissions are marked with 777 hence don't need the init container
+
+    http://HOSTNAME/solr/admin/collections?action=BACKUP&name=myBackupName&collection=my-collection&location=/backup
+
+    http://HOSTNAME/solr/admin/collections?action=RESTORE&name=myBackupName&collection=my-collection&location=/backup
 
 ## Finally delete the cluster
 

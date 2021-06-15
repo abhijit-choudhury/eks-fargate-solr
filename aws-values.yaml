@@ -293,7 +293,9 @@ updateStrategy:
 ##   - name: FOO
 ##     value: "bar"
 ##
-extraEnvVars: []
+extraEnvVars: 
+  - name: SOLR_OPTS
+    value: "-Dsolr.allowPaths=/backup"
 
 ## ConfigMap with extra environment variables
 ##
@@ -305,11 +307,16 @@ extraEnvVarsSecret:
 
 ## Extra volumes to add to the deployment
 ##
-extraVolumes: []
+extraVolumes: 
+  - name: solr-backup-volume
+    persistentVolumeClaim:
+      claimName: solr-backup-efs-pvc
 
 ## Extra volume mounts to add to the container
 ##
-extraVolumeMounts: []
+extraVolumeMounts: 
+  - name: solr-backup-volume
+    mountPath: /backup
 
 ## Add init containers to the Solr pods.
 ## Example:

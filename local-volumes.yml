@@ -89,3 +89,35 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: "/Users/abhchoud/work/mine/solr-data/zoo3"
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: solr-backup
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: solr-backup-pv-volume
+spec:
+  storageClassName: solr-backup
+  capacity:
+    storage: 50Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/Users/abhchoud/work/mine/solr-data/backup"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: solr-backup-pvc-volume
+spec:
+  storageClassName: solr-backup
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 50Mi

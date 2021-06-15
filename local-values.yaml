@@ -293,7 +293,9 @@ updateStrategy:
 ##   - name: FOO
 ##     value: "bar"
 ##
-extraEnvVars: []
+extraEnvVars: 
+  - name: SOLR_OPTS
+    value: "-Dsolr.allowPaths=/backup"
 
 ## ConfigMap with extra environment variables
 ##
@@ -305,11 +307,16 @@ extraEnvVarsSecret:
 
 ## Extra volumes to add to the deployment
 ##
-extraVolumes: []
+extraVolumes: 
+  - name: solr-backup-volume
+    persistentVolumeClaim:
+      claimName: solr-backup-pvc-volume
 
 ## Extra volume mounts to add to the container
 ##
-extraVolumeMounts: []
+extraVolumeMounts:
+  - name: solr-backup-volume
+    mountPath: /backup
 
 ## Add init containers to the Solr pods.
 ## Example:
@@ -321,7 +328,20 @@ extraVolumeMounts: []
 ##       - name: portname
 ##         containerPort: 1234
 ##
-initContainers: []
+initContainers: 
+  - name: backup-permission-fix
+    image: busybox
+    command: ["/bin/chown","-R","1001:1001", "/backup"]
+    volumeMounts:
+      - name: solr-backup-volume
+        mountPath: /backup
+    resources:
+      limits: 
+        cpu: 50m
+        memory: 50Mi
+      requests:
+        cpu: 50m
+        memory: 50Mi
 
 ## Add sidecars to the Solr pods.
 ## Example:

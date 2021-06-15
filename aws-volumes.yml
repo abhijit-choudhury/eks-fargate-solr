@@ -112,3 +112,37 @@ spec:
   csi:
     driver: efs.csi.aws.com
     volumeHandle: $ZOOKEEPER3_EFS_FS_ID::$ZOOKEEPER3_EFS_AP
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: efs-solr-backup-sc
+provisioner: efs.csi.aws.com
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: solr-backup-efs-pv
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: efs-solr-backup-sc
+  csi:
+    driver: efs.csi.aws.com
+    volumeHandle: $SOLR_BACKUP_EFS_FS_ID::$SOLR_BACKUP_EFS_AP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: solr-backup-efs-pvc
+spec:
+  storageClassName: efs-solr-backup-sc
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
