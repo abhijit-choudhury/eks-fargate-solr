@@ -48,7 +48,7 @@ Now let's push those configs to my-collection.AUTOCREATED configset (cloned from
 
     curl -u admin:admin -X POST -H "Content-Type:application/octet-stream" --data-binary @project-configs.zip "http://HOSTNAME/solr/admin/configs?action=UPLOAD&name=my-collection.AUTOCREATED&overwrite=true"
 
-Create any new collections and aliases as required, if needed reload the collections
+Create any new collections with TLOG replicas and aliases as required, if needed reload the collections
 
     curl -u admin:admin "http://HOSTNAME/solr/admin/collections?action=CREATE&name=new-collection-name&numShards=1&tlogReplicas=2&maxShardsPerNode=1&collection.configName=my-collection.AUTOCREATED"
     
@@ -83,7 +83,7 @@ Next we want to setup the SolrCloud cluster autoscaling policies as below, which
         "waitFor": "120s",
         "preferredOperation": "ADDREPLICA",
         "enabled": true,
-        "replicaType": "TLOG"
+        "replicaType": "PULL"
     },
     "set-trigger": {
         "name": "node_lost_trigger",
@@ -100,7 +100,7 @@ You can do a GET to the same URL to check if above got added. Above we are doing
 
 1. Adding a cluster wide policy to have/add 1 replica for each shard on any node
 
-2. Adding a SOLR trigger to add TLOG replica after 120s once a node is added.
+2. Adding a SOLR trigger to add PULL replica after 120s once a node is added.
 
 3. Adding a SOLR trigger to delete the node after 120s once it is lost
 
@@ -369,9 +369,13 @@ Finally Deploy SolrCloud, if for some reason pod stay in pending, describe the p
 
     helm install solr -f aws-values.yaml bitnami/solr
 
-Deploy Ingress
+Deploy Ingress, important annotations can be used from following link to configure the AWS Load Balancer https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.2/guide/ingress/annotations/
 
     kubectl apply -f aws-ingress.yml
+
+If we need to reinstall ingress and its not getting deleted try below, reason is there are some finalizers attached to the ingress which the controller is not able to clean
+
+    kubectl patch ingress solr-ingress -n default -p '{"metadata":{"finalizers":[]}}' --type=merge
 
 Wait for some time to get the AWS ALB created and then get the hostname
 
@@ -407,6 +411,13 @@ For AWS mounted EFS volumes, permissions are marked with 777 hence don't need th
     http://HOSTNAME/solr/admin/collections?action=BACKUP&name=myBackupName&collection=my-collection&location=/backup
 
     http://HOSTNAME/solr/admin/collections?action=RESTORE&name=myBackupName&collection=my-collection&location=/backup
+
+
+## Upgrade
+
+Update SolrCloud stack if values.yaml is updated
+
+    helm upgrade solr -f aws-values.yaml bitnami/solr
 
 ## Finally delete the cluster
 
