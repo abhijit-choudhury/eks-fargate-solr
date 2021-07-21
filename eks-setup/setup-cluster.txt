@@ -1,0 +1,7 @@
+Setup EKS
+
+Setup Logging
+
+Deploy the AWS Load Balancer Controller
+
+Setup RBAC

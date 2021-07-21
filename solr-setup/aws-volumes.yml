@@ -1,5 +1,6 @@
-apiVersion: storage.k8s.io/v1beta1
+
 kind: CSIDriver
+apiVersion: storage.k8s.io/v1beta1
 metadata:
   name: efs.csi.aws.com
 spec:
@@ -20,7 +21,7 @@ provisioner: efs.csi.aws.com
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: solr1-efs-pv
+  name: $SOLR_ENV-solr1-efs-pv
 spec:
   capacity:
     storage: 10Gi
@@ -36,7 +37,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: solr2-efs-pv
+  name: $SOLR_ENV-solr2-efs-pv
+  namespace: $SOLR_ENV
 spec:
   capacity:
     storage: 10Gi
@@ -52,7 +54,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: solr3-efs-pv
+  name: $SOLR_ENV-solr3-efs-pv
+  namespace: $SOLR_ENV
 spec:
   capacity:
     storage: 10Gi
@@ -68,7 +71,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: zookeeper1-efs-pv
+  name: $SOLR_ENV-zookeeper1-efs-pv
+  namespace: $SOLR_ENV
 spec:
   capacity:
     storage: 10Gi
@@ -84,7 +88,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: zookeeper2-efs-pv
+  name: $SOLR_ENV-zookeeper2-efs-pv
+  namespace: $SOLR_ENV
 spec:
   capacity:
     storage: 10Gi
@@ -100,7 +105,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: zookeeper3-efs-pv
+  name: $SOLR_ENV-zookeeper3-efs-pv
+  namespace: $SOLR_ENV
 spec:
   capacity:
     storage: 10Gi
@@ -122,7 +128,7 @@ provisioner: efs.csi.aws.com
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: solr-backup-efs-pv
+  name: $SOLR_ENV-solr-backup-efs-pv
 spec:
   capacity:
     storage: 10Gi
@@ -139,6 +145,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: solr-backup-efs-pvc
+  namespace: $SOLR_ENV
 spec:
   storageClassName: efs-solr-backup-sc
   accessModes:

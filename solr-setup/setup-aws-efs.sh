@@ -1,9 +1,9 @@
 SOLR1_EFS_FS_ID=$(aws efs create-file-system \
-  --creation-token SOLR1-on-Fargate \
+  --creation-token $SOLR_ENV-solr1-on-fargate \
   --encrypted \
   --performance-mode generalPurpose \
   --throughput-mode bursting \
-  --tags Key=Name,Value=SOLR-Volume \
+  --tags Key=Name,Value=$SOLR_ENV-solr1-volume \
   --region $SOLR_AWS_REGION \
   --output text \
   --query "FileSystemId")
@@ -26,7 +26,7 @@ export SOLR1_EFS_AP=$SOLR1_EFS_AP
 
 for subnet in $(aws eks describe-fargate-profile \
   --output text --cluster-name $SOLR_EKS_CLUSTER\
-  --fargate-profile-name fp-default  \
+  --fargate-profile-name defaultfp  \
   --region $SOLR_AWS_REGION  \
   --query "fargateProfile.subnets"); \
 do (aws efs create-mount-target \
@@ -39,11 +39,11 @@ done
 sleep 5
 
 SOLR2_EFS_FS_ID=$(aws efs create-file-system \
-  --creation-token SOLR2-on-Fargate \
+  --creation-token $SOLR_ENV-solr2-on-fargate \
   --encrypted \
   --performance-mode generalPurpose \
   --throughput-mode bursting \
-  --tags Key=Name,Value=SOLR-Volume \
+  --tags Key=Name,Value=$SOLR_ENV-solr2-volume \
   --region $SOLR_AWS_REGION \
   --output text \
   --query "FileSystemId")
@@ -66,7 +66,7 @@ export SOLR2_EFS_AP=$SOLR2_EFS_AP
 
 for subnet in $(aws eks describe-fargate-profile \
   --output text --cluster-name $SOLR_EKS_CLUSTER\
-  --fargate-profile-name fp-default  \
+  --fargate-profile-name defaultfp  \
   --region $SOLR_AWS_REGION  \
   --query "fargateProfile.subnets"); \
 do (aws efs create-mount-target \
@@ -79,11 +79,11 @@ done
 sleep 5
 
 SOLR3_EFS_FS_ID=$(aws efs create-file-system \
-  --creation-token SOLR3-on-Fargate \
+  --creation-token $SOLR_ENV-solr3-on-fargate \
   --encrypted \
   --performance-mode generalPurpose \
   --throughput-mode bursting \
-  --tags Key=Name,Value=SOLR-Volume \
+  --tags Key=Name,Value=$SOLR_ENV-solr3-volume \
   --region $SOLR_AWS_REGION \
   --output text \
   --query "FileSystemId")
@@ -106,7 +106,7 @@ export SOLR3_EFS_AP=$SOLR3_EFS_AP
 
 for subnet in $(aws eks describe-fargate-profile \
   --output text --cluster-name $SOLR_EKS_CLUSTER\
-  --fargate-profile-name fp-default  \
+  --fargate-profile-name defaultfp  \
   --region $SOLR_AWS_REGION  \
   --query "fargateProfile.subnets"); \
 do (aws efs create-mount-target \
@@ -119,11 +119,11 @@ done
 sleep 5
 
 ZOOKEEPER1_EFS_FS_ID=$(aws efs create-file-system \
-  --creation-token Zookeeper1-on-Fargate \
+  --creation-token $SOLR_ENV-zookeeper1-on-fargate \
   --encrypted \
   --performance-mode generalPurpose \
   --throughput-mode bursting \
-  --tags Key=Name,Value=Zookeeper-Volume \
+  --tags Key=Name,Value=$SOLR_ENV-zookeeper1-volume \
   --region $SOLR_AWS_REGION \
   --output text \
   --query "FileSystemId")
@@ -146,7 +146,7 @@ export ZOOKEEPER1_EFS_AP=$ZOOKEEPER1_EFS_AP
 
 for subnet in $(aws eks describe-fargate-profile \
   --output text --cluster-name $SOLR_EKS_CLUSTER\
-  --fargate-profile-name fp-default  \
+  --fargate-profile-name defaultfp  \
   --region $SOLR_AWS_REGION  \
   --query "fargateProfile.subnets"); \
 do (aws efs create-mount-target \
@@ -159,11 +159,11 @@ done
 sleep 5
 
 ZOOKEEPER2_EFS_FS_ID=$(aws efs create-file-system \
-  --creation-token Zookeeper2-on-Fargate \
+  --creation-token $SOLR_ENV-zookeeper2-on-fargate \
   --encrypted \
   --performance-mode generalPurpose \
   --throughput-mode bursting \
-  --tags Key=Name,Value=Zookeeper-Volume \
+  --tags Key=Name,Value=$SOLR_ENV-zookeeper2-volume \
   --region $SOLR_AWS_REGION \
   --output text \
   --query "FileSystemId")
@@ -186,7 +186,7 @@ export ZOOKEEPER2_EFS_AP=$ZOOKEEPER2_EFS_AP
 
 for subnet in $(aws eks describe-fargate-profile \
   --output text --cluster-name $SOLR_EKS_CLUSTER\
-  --fargate-profile-name fp-default  \
+  --fargate-profile-name defaultfp  \
   --region $SOLR_AWS_REGION  \
   --query "fargateProfile.subnets"); \
 do (aws efs create-mount-target \
@@ -199,11 +199,11 @@ done
 sleep 5
 
 ZOOKEEPER3_EFS_FS_ID=$(aws efs create-file-system \
-  --creation-token Zookeeper3-on-Fargate \
+  --creation-token $SOLR_ENV-zookeeper3-on-fargate \
   --encrypted \
   --performance-mode generalPurpose \
   --throughput-mode bursting \
-  --tags Key=Name,Value=Zookeeper-Volume \
+  --tags Key=Name,Value=$SOLR_ENV-zookeeper3-volume \
   --region $SOLR_AWS_REGION \
   --output text \
   --query "FileSystemId")
@@ -226,7 +226,7 @@ export ZOOKEEPER3_EFS_AP=$ZOOKEEPER3_EFS_AP
 
 for subnet in $(aws eks describe-fargate-profile \
   --output text --cluster-name $SOLR_EKS_CLUSTER\
-  --fargate-profile-name fp-default  \
+  --fargate-profile-name defaultfp  \
   --region $SOLR_AWS_REGION  \
   --query "fargateProfile.subnets"); \
 do (aws efs create-mount-target \
@@ -239,11 +239,11 @@ done
 sleep 5
 
 SOLR_BACKUP_EFS_FS_ID=$(aws efs create-file-system \
-  --creation-token SOLR-Backup-on-Fargate \
+  --creation-token $SOLR_ENV-solr-backup-on-fargate \
   --encrypted \
   --performance-mode generalPurpose \
   --throughput-mode bursting \
-  --tags Key=Name,Value=Solr-Backup-Volume \
+  --tags Key=Name,Value=$SOLR_ENV-solr-backup-volume \
   --region $SOLR_AWS_REGION \
   --output text \
   --query "FileSystemId")
@@ -255,7 +255,7 @@ export SOLR_BACKUP_EFS_FS_ID=$SOLR_BACKUP_EFS_FS_ID
 SOLR_BACKUP_EFS_AP=$(aws efs create-access-point \
   --file-system-id $SOLR_BACKUP_EFS_FS_ID \
   --posix-user Uid=1000,Gid=1000 \
-  --root-directory "Path=/bitnami/solr,CreationInfo={OwnerUid=1000,OwnerGid=1000,Permissions=777}" \
+  --root-directory "Path=/backup,CreationInfo={OwnerUid=1000,OwnerGid=1000,Permissions=777}" \
   --region $SOLR_AWS_REGION \
   --query 'AccessPointId' \
   --output text)
@@ -266,7 +266,7 @@ export SOLR_BACKUP_EFS_AP=$SOLR_BACKUP_EFS_AP
 
 for subnet in $(aws eks describe-fargate-profile \
   --output text --cluster-name $SOLR_EKS_CLUSTER\
-  --fargate-profile-name fp-default  \
+  --fargate-profile-name defaultfp  \
   --region $SOLR_AWS_REGION  \
   --query "fargateProfile.subnets"); \
 do (aws efs create-mount-target \

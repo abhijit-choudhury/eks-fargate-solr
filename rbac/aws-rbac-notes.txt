@@ -1,0 +1,188 @@
+IAM Setup of Groups and Roles
+
+******************************************************************************************************************************************************************
+
+Create a Trust Policy with action as sts:AssumeRole
+
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Principal": {
+                    "AWS": [
+                        "arn:aws:iam::123456789012:user/username"
+                    ]
+                },
+                "Action": "sts:AssumeRole",
+                "Condition": {}
+            }
+        ]
+    }
+
+Create a Role and attach above trust policy
+
+    aws iam create-role \
+    --role-name k8sDev \
+    --description "Kubernetes Dev role (for AWS IAM Authenticator for Kubernetes)." \
+    --assume-role-policy-document file://trust.json \
+    --output text \
+    --query 'Role.Arn'
+
+Create below Policy and add to the above role
+
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "AllowEKSReadOnlyRole",
+                "Effect": "Allow",
+                "Action": [
+                    "eks:DescribeCluster",
+                    "eks:ListClusters"
+                ],
+                "Resource": "*"
+            }
+        ]
+    }
+
+Create another role as k8sAdmin
+
+******************************************************************************************************************************************************************
+
+K8s RBAC Setup
+
+******************************************************************************************************************************************************************
+Create an entry in the aws-auth configmap in kube-system namespace via eksctl, its safer than manually updating it
+
+    eksctl create iamidentitymapping \
+    --cluster eks-fargate-solr \
+    --arn arn:aws:iam::123456789012:role/k8sDev \
+    --username devuser
+
+    For administrators
+
+    eksctl create iamidentitymapping \
+    --cluster eks-fargate-solr \
+    --arn arn:aws:iam::123456789012:role/k8sAdmin \
+    --username admin \
+    --group system:masters
+
+    Read/Get
+
+    eksctl get iamidentitymapping \
+    --cluster eks-fargate-solr 
+
+    Delete a mapping
+    
+    eksctl delete iamidentitymapping \
+    --cluster  eks-fargate-solr \
+    --arn arn:aws:iam::123456789012:role/roleName
+
+    Above updates the configmap as below  
+    
+    kubectl get cm -n kube-system aws-auth -o yaml
+
+    apiVersion: v1
+    data:
+    mapRoles: |
+        - groups:
+        - system:bootstrappers
+        - system:nodes
+        - system:node-proxier
+        rolearn: arn:aws:iam::123456789012:role/eksctl-eks-fargate-solr-cl-FargatePodExecutionRole-VSFJNF7GK1BU
+        username: system:node:{{SessionName}}
+        - groups:
+        - system:masters
+        rolearn: arn:aws:iam::123456789012:role/k8sAdmin
+        username: admin
+        - rolearn: arn:aws:iam::123456789012:role/k8sDev
+        username: devuser
+    mapUsers: |
+        []
+    kind: ConfigMap
+    metadata:
+    creationTimestamp: "2021-06-04T12:02:15Z"
+    name: aws-auth
+    namespace: kube-system
+
+Create a Role/ClusterRole and assign to RoleBinding/ClusterRoleBinding for devuser i.e. k8sDev role
+
+    kind: RoleBinding
+    apiVersion: rbac.authorization.k8s.io/v1beta1
+    metadata:
+      name: dev-role-binding
+    subjects:
+    - kind: User
+      name: dev-user
+    roleRef:
+      kind: Role
+      name: dev-role
+      apiGroup: rbac.authorization.k8s.io
+
+******************************************************************************************************************************************************************
+
+Setup of aws configuration
+
+******************************************************************************************************************************************************************
+
+~/.aws/config
+=========================================================================================================
+
+[profile k8sDev]
+region = eu-west-1
+output = json
+mfa_serial=arn:aws:iam::123456789012:mfa/abhijit.choudhury@publicissapient.com
+role_arn=arn:aws:iam::123456789012:role/k8sDev
+source_profile = mine
+
+[profile k8sAdmin]
+region = eu-west-1
+output = json
+mfa_serial=arn:aws:iam::123456789012:mfa/abhijit.choudhury@publicissapient.com
+role_arn=arn:aws:iam::123456789012:role/k8sAdmin
+source_profile = mine
+
+=========================================================================================================
+
+~/.aws/credentials
+=========================================================================================================
+
+[mine]
+aws_access_key_id = ACCESS_KEY
+aws_secret_access_key = SECRET_KEY
+
+=========================================================================================================
+
+Final steps to check it its all working fine
+
+******************************************************************************************************************************************************************
+Linux
+export AWS_PROFILE=k8sDev
+Windows
+$env:AWS_PROFILE="k8sDev"
+
+OR
+
+Linux
+export AWS_PROFILE=k8sAdmin
+Windows
+$env:AWS_PROFILE="k8sAdmin"
+
+Below should show that we assume respective role mentioned in above profile
+
+aws sts get-caller-identity
+
+Below updates kubeconfig on the system
+
+    aws eks --region eu-west-1 update-kubeconfig --name eks-fargate-solr
+
+Check the kubeconfig in env variable section for AWS_PROFILE, as it gets injected from above command, we can remove it if we want to switch profiles
+
+=========================================================================================================
+
+Now we should be able to do work with kubectl commands
+
+kubectl get nodes
+
+=========================================================================================================

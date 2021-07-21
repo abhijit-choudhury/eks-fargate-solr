@@ -3,7 +3,7 @@ kind: ClusterConfig
 metadata:
   name: eks-fargate-solr
   region: eu-west-1
-  version: '1.19'
+  version: '1.20'
 vpc:
   id: "vpc-xxxxxxxxx"
   subnets:
@@ -24,6 +24,8 @@ fargateProfiles:
     selectors:
       - namespace: default
       - namespace: kube-system
+      - namespace: prod
+      - namespace: cert-manager
 cloudWatch:
   clusterLogging:
     enableTypes: ["*"]

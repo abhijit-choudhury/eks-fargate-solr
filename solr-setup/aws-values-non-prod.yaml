@@ -121,10 +121,10 @@ containerPort: 8983
 serverDirectory: "server"
 ## Java memmory options
 ##
-javaMem: 512m
+javaMem: 3500m
 ## Java Heap options
 ##
-heap: 512m
+heap: 3500m
 
 authentication:
   ## Enabled Solr authentication
@@ -173,13 +173,13 @@ resources:
   ## resources, such as Minikube. If you do want to specify resources, uncomment the following
   ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits: 
-    cpu: 200m
-    memory: 1Gi
+    cpu: 500m
+    memory: 5Gi
   #   cpu: 200m
   #   memory: 256Mi
   requests:
-    cpu: 200m
-    memory: 1Gi
+    cpu: 500m
+    memory: 5Gi
   #   cpu: 200m
   #   memory: 10Mi
 
@@ -368,14 +368,14 @@ volumePermissions:
     ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     ##
     limits:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 200m
+      memory: 1.5Gi
     ##   cpu: 100m
     ##   memory: 128Mi
     ##
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 200m
+      memory: 1.5Gi
     ##   cpu: 100m
     ##   memory: 128Mi
     ##
