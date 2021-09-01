@@ -1,0 +1,37 @@
+# Dont install unless you know what you are doing
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tmp-efs-pvc
+spec:
+  storageClassName: efs-solr-sc
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: curl
+  namespace: default
+spec:
+  volumes:
+  - name: vol
+    persistentVolumeClaim:
+      claimName: tmp-efs-pvc
+  containers:
+  - name: curl
+    image: centos
+    command: ["sleep",  "3600"]
+    volumeMounts:
+    - name: vol
+      mountPath: /bitnami/solr
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi

@@ -1,0 +1,26 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: backup-job
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: solr-backup
+            image: centos
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -ec
+            - |
+              date
+              echo "Starting my-collection Backup"
+              resp=$(curl -u admin:admin "solr.prod.svc.cluster.local:8983/solr/admin/collections?action=BACKUP&name=my-collection&collection=my-collection&location=/backup")
+              echo $resp
+              
+              echo "Backup Complete"
+              exit 0
+          restartPolicy: Never

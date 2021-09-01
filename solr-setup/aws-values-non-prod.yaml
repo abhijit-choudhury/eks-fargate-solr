@@ -64,7 +64,7 @@ service:
 image:
   registry: docker.io
   repository: bitnami/solr
-  tag: 8.8.2-debian-10-r27
+  tag: 8.9.0-debian-10-r24
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
   ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -121,10 +121,10 @@ containerPort: 8983
 serverDirectory: "server"
 ## Java memmory options
 ##
-javaMem: 3500m
+javaMem: "-Xms1500m -Xmx3500m"
 ## Java Heap options
 ##
-heap: 3500m
+heap: 
 
 authentication:
   ## Enabled Solr authentication
@@ -173,12 +173,12 @@ resources:
   ## resources, such as Minikube. If you do want to specify resources, uncomment the following
   ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits: 
-    cpu: 500m
+    cpu: 900m
     memory: 5Gi
   #   cpu: 200m
   #   memory: 256Mi
   requests:
-    cpu: 500m
+    cpu: 900m
     memory: 5Gi
   #   cpu: 200m
   #   memory: 10Mi
@@ -368,17 +368,11 @@ volumePermissions:
     ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
     ##
     limits:
-      cpu: 200m
-      memory: 1.5Gi
-    ##   cpu: 100m
-    ##   memory: 128Mi
-    ##
+      cpu: 100m
+      memory: 128Mi
     requests:
-      cpu: 200m
-      memory: 1.5Gi
-    ##   cpu: 100m
-    ##   memory: 128Mi
-    ##
+      cpu: 100m
+      memory: 128Mi
   ## Container security context
   ##
   containerSecurityContext:
@@ -444,6 +438,10 @@ zookeeper:
   fourlwCommandsWhitelist: srvr,mntr,conf,ruok
   service:
     publishNotReadyAddresses: true
+  resources:
+    requests:
+      cpu: 400m
+      memory: 1.5Gi
 
 ## This value is only used when zookeeper.enabled is set to false
 ##
@@ -459,7 +457,7 @@ exporter:
   image:
     registry: docker.io
     repository: bitnami/solr
-    tag: 8.8.2-debian-10-r26
+    tag: 8.9.0-debian-10-r14
     ## Specify a imagePullPolicy
     ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
     ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
@@ -510,16 +508,16 @@ exporter:
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
   ##
   resources:
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    limits:
-      cpu: 200m
-      memory: 512Mi
-    requests:
-      cpu: 200m
-      memory: 256Mi
+    ## Example:
+    ## limits:
+    ##    cpu: 200m
+    ##    memory: 256Mi
+    limits: {}
+    ## Examples:
+    ## requests:
+    ##    cpu: 200m
+    ##    memory: 10Mi
+    requests: {}
 
   ## Solr exporter containers' Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container

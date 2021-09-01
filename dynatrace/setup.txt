@@ -1,0 +1,43 @@
+Reference : https://www.dynatrace.com/support/help/technology-support/cloud-platforms/amazon-web-services/integrations/deploy-oneagent-on-aws-fargate/#expand-automatic-injection-387
+
+Create a fargate profile to allow dynatrace namespace
+
+    export SOLR_AWS_REGION=eu-west-1
+
+    export SOLR_EKS_CLUSTER=eks-fargate-solr
+
+    eksctl create fargateprofile \
+    --cluster $SOLR_EKS_CLUSTER \
+    --name dynatrace \
+    --namespace dynatrace \
+    --region $SOLR_AWS_REGION
+
+
+Create dynatrace namespace
+    
+    kubectl create namespace dynatrace
+
+Install OneAgent Operator
+    
+    kubectl apply -f https://github.com/Dynatrace/dynatrace-oneagent-operator/releases/latest/download/kubernetes.yaml
+
+Confirm logs from OneAgent
+    
+    kubectl -n dynatrace logs -f deployment/dynatrace-oneagent-operator
+
+PaaS token for authentication to the Dynatrace cluster
+
+    kubectl -n dynatrace create secret generic oneagent --from-literal="paasToken=dt0c01.XXXXXXXX"
+
+Label the target namespace
+
+    kubectl label namespace prod oneagent.dynatrace.com/instance=oneagentapm
+
+Download and Install OneAgentAPM CRD with changes for dynatrace environment 
+
+    curl -o cr-apm.yaml https://raw.githubusercontent.com/Dynatrace/dynatrace-oneagent-operator/master/deploy/cr-apm.yaml
+
+    kubectl apply -f cr-apm.yaml
+
+Finally restart the pods
+    

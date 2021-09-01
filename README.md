@@ -74,7 +74,8 @@ So we need to disable the authentication for the SolrCloud at this point, if you
 
 Next we want to setup the SolrCloud cluster autoscaling policies as below, which will take care of scaling the Logical Architecture
 
-    curl --location --request POST 'http://HOSTNAME/api/cluster/autoscaling' \
+    curl -u admin:$PASSWORD --location --request POST 'http://$HOSTNAME/api/cluster/autoscaling' \
+    --insecure \
     --header 'Content-Type: text/plain' \
     --data-raw '{
     "set-trigger": {
@@ -83,7 +84,7 @@ Next we want to setup the SolrCloud cluster autoscaling policies as below, which
         "waitFor": "120s",
         "preferredOperation": "ADDREPLICA",
         "enabled": true,
-        "replicaType": "PULL"
+        "replicaType": "TLOG"
     },
     "set-trigger": {
         "name": "node_lost_trigger",
@@ -429,12 +430,57 @@ Delete the EFS volumes first and then try deleting the EKS cluster
 
 ## Miscellaneous
 
-If you want to curl K8s services from within the cluster e.g curl to individual Solr nodes, you can install radial busybox
+If you want to curl K8s services from within the cluster e.g curl to individual Solr nodes, you can install a centos pod
 
-    kubectl run curl --image=radial/busyboxplus:curl -i --tty
+    kubectl apply brand/curl.yml
+
+    kubectl exec -it curl -- bash
 
     curl --location --request GET 'http://solr-2.solr-headless.default.svc.cluster.local:8983/solr/my-collection/select?q=*:*&wt=json' --header 'Content-Type: application/json'
 
-After exit if you want to get back in run below
+## Resync Follower Replicas (which are out of sync or having sync issues)
 
-    kubectl attach curl -c curl -i -t
+    1. Delete the corrupt replica
+
+        replica is not cunard_de_DE_shard1_replica_t5 rather hover over the replica in graph view and we would find something like core_node5
+
+        e.g. 
+        curl -u admin:$PASSWORD "https://$HOSTNAME/solr/admin/collections?action=DELETEREPLICA&collection=cunard_de_DE&shard=shard1&replica=core_node6" --insecure
+
+    2. Delete the corrupt replica folder under the pod, assuming its on solr-0 (This is optional step running above command should delete the folder automatically but check if its deleted properly and if not delete it)
+
+        kubectl exec -it solr-0 -- bash
+
+        cd /bitnami/solr/server/solr
+
+        delete the respective replica folder cunard_de_DE_shard1_replica_t5
+
+    3. Make sure the replica autoscaling rule is in place i.e. 
+
+        curl -u admin:$PASSWORD --location --request POST https://$HOSTNAME/api/cluster/autoscaling \
+        --insecure \
+        --header 'Content-Type: text/plain' \
+        --data-raw '{
+            "set-trigger": {
+                "name": "node_added_trigger",
+                "event": "nodeAdded",
+                "waitFor": "120s",
+                "preferredOperation": "ADDREPLICA",
+                "enabled": true,
+                "replicaType": "TLOG"
+            },
+            "set-trigger": {
+                "name": "node_lost_trigger",
+                "event": "nodeLost",
+                "waitFor": "120s",
+                "preferredOperation": "DELETENODE"
+            },
+            "set-cluster-policy": [
+                    {"replica": "1", "shard": "#EACH", "node": "#ANY"}
+            ]
+        }'
+
+    4. Finally delete the solr pod, a new pod gets spawned (STS replica count = 2), after the node is up and ready after 120 secs a new replica should be created automatically for the above deleted one, and is completely in sync with leader replica
+
+        kubectl delete po solr-0
+        kubectl get po --watch

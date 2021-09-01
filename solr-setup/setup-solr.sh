@@ -6,7 +6,7 @@ export SOLR_EKS_CLUSTER=eks-fargate-solr
 
 source setup-aws-efs.sh
 
-envsubst < aws-volumes.yml > aws-volumes-updated.yml
+envsubst < aws-volumes.yml > aws-volumes-updated-$SOLR_ENV.yml
 
 kubectl create namespace $SOLR_ENV
 
@@ -18,7 +18,7 @@ eksctl create fargateprofile \
 
 kubectl config set-context --current --namespace=$SOLR_ENV
 
-kubectl apply -f aws-volumes-updated.yml
+kubectl apply -f aws-volumes-updated-$SOLR_ENV.yml
 
 sleep 120
 
@@ -26,9 +26,9 @@ helm install solr -f aws-values-$SOLR_ENV_TYPE.yaml bitnami/solr
 
 sleep 300
 
-envsubst < aws-ingress.yml > aws-ingress-updated.yml
+envsubst < aws-ingress.yml > aws-ingress-updated-$SOLR_ENV.yml
 
-kubectl apply -f aws-ingress-updated.yml
+kubectl apply -f aws-ingress-updated-$SOLR_ENV.yml
 
 sleep 300
 
